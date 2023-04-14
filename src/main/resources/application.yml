@@ -4,3 +4,18 @@ spring:
     url: jdbc:mysql://119.23.60.131:3306/study?userUnicode=true&characterEncoding=utf-8
     username: root
     password: root
+  mail:
+    host: smtp.163.com
+    username: zhangshuaibao922@163.com
+    password: FNNTBYMCEUAYSXWI
+    port: 465
+    default-encoding: UTF-8
+    properties:
+      from: zhangshuaibao922@163.com
+    protocol: smtps
+  data:
+    redis:
+      host: 119.23.60.131
+      port: 6380
+      database: 0
+
