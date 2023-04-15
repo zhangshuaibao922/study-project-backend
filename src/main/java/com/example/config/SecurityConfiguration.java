@@ -91,6 +91,7 @@ public class SecurityConfiguration {
                 .and()
                 .build();
     }
+
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

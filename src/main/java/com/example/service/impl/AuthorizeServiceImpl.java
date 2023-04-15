@@ -61,16 +61,20 @@ public class AuthorizeServiceImpl implements AuthorizeService {
      * @return
      */
     @Override
-    public String sendValidateEmail(String email, String id) {
-        String key = "email:"+id+":"+email;
+    public String sendValidateEmail(String email, String id,boolean hasAccount) {
+        String key = "email:"+id+":"+email+":"+hasAccount;
         if(Boolean.TRUE.equals(template.hasKey(key))){
             Long expire = Optional.ofNullable(template.getExpire(key, TimeUnit.SECONDS)).orElse(0L);
             if(expire>120){
                 return "请求频繁，请稍后再试";
             }
         }
-        if(accountMapper.findAccountByNameOrEmail(email)!=null){
-            return "邮箱已注册";
+        Account account = accountMapper.findAccountByNameOrEmail(email);
+        if(hasAccount&&account == null){
+            return "该邮箱尚未注册";
+        }
+        if(!hasAccount&&account != null){
+            return "该邮箱已被注册";
         }
         Random random = new Random();
         int code = random.nextInt(899999)+100000;
@@ -91,13 +95,18 @@ public class AuthorizeServiceImpl implements AuthorizeService {
 
     @Override
     public String validateAndRegister(String username, String password, String email, String code, String sessionId) {
-        String key = "email:"+sessionId+":"+email;
+        String key = "email:"+sessionId+":"+email+":false";
         if(Boolean.TRUE.equals(template.hasKey(key))){
             String s = template.opsForValue().get(key);
             if(s==null){
                 return "验证码失效，请重新请求";
             }
             if(s.equals(code)){
+                Account account1 = accountMapper.findAccountByNameOrEmail(username);
+                if(account1 != null){
+                    return "该用户名已被注册";
+                }
+                template.delete(key);
                 password=encoder.encode(password);
                 int account = accountMapper.createAccount(username, password, email);
                 if(account>0){
@@ -111,5 +120,31 @@ public class AuthorizeServiceImpl implements AuthorizeService {
         }else {
             return "请先发送验证码";
         }
+    }
+
+    @Override
+    public String validateOnly(String email, String code, String sessionId) {
+        String key = "email:"+sessionId + ":"+email+":true";
+        if(Boolean.TRUE.equals(template.hasKey(key))){
+            String s = template.opsForValue().get(key);
+            if(s==null){
+                return "验证码失效，请重新请求";
+            }
+            if(s.equals(code)){
+                template.delete(key);
+               return null;
+            }else {
+                return "验证码错误";
+            }
+        }else {
+            return "请先发送验证码";
+        }
+
+    }
+
+    @Override
+    public boolean resetPassword(String password, String email) {
+        String encode = encoder.encode(password);
+        return accountMapper.resetPasswordByEmailInt(encode, email)>0;
     }
 }
