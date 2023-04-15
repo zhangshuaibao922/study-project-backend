@@ -18,4 +18,3 @@ spring:
       host: 119.23.60.131
       port: 6380
       database: 0
-

@@ -66,21 +66,21 @@ public class SecurityConfiguration {
                 .build();
     }
     @Bean
-    PersistentTokenRepository tokenRepository(){
+    public PersistentTokenRepository tokenRepository(){
         JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
         tokenRepository.setDataSource(dataSource);
         tokenRepository.setCreateTableOnStartup(false);
         return tokenRepository;
     }
     private CorsConfigurationSource corsConfigurationSource(){
-        CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.addAllowedOriginPattern("*");
-        corsConfiguration.setAllowCredentials(true);
-        corsConfiguration.addAllowedHeader("*");
-        corsConfiguration.addAllowedMethod("*");
-        corsConfiguration.addExposedHeader("*");
+        CorsConfiguration cors = new CorsConfiguration();
+        cors.addAllowedOriginPattern("*");
+        cors.setAllowCredentials(true);
+        cors.addAllowedHeader("*");
+        cors.addAllowedMethod("*");
+        cors.addExposedHeader("*");
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", corsConfiguration);
+        source.registerCorsConfiguration("/**", cors);
         return source;
     }
     @Bean
